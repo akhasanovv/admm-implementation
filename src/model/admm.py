@@ -7,7 +7,7 @@ class ADMM(nn.Module):
     ADMM implementation from [paper](https://arxiv.org/pdf/1908.11502)
     """
 
-    def __init__(self):
+    def __init__(self, mu1=1e-4, mu2=1e-4, mu3=1e-4, tau=2e-4):
         """
         Args:
             n_feats (int): number of input features.
@@ -16,18 +16,17 @@ class ADMM(nn.Module):
         """
         super().__init__()
 
+        self.mu1 = mu1
+        self.mu2 = mu2
+        self.mu3 = mu3
+        self.tau = tau
         
 
-    def forward(self, data_object, **batch):
-        """
-        Model forward method.
-
-        Args:
-            data_object (Tensor): input vector.
-        Returns:
-            output (dict): output dict containing logits.
-        """
-        return {"logits": self.net(data_object)}
+    def forward(self, b, psf, num_iters=100):
+        for _ in range(num_iters):
+            pass
+        
+        return b
 
     def __str__(self):
         """

@@ -8,6 +8,11 @@ pandas
 wandb
 comet_ml
 hydra-core
+datasets
+huggingface_hub
+Pillow
+opencv-python
+lpips
 
 black
 isort
