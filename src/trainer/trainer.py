@@ -71,9 +71,21 @@ class Trainer(BaseTrainer):
         # such as audio, text or images, for example
 
         # logging scheme might be different for different partitions
-        if mode == "train":  # the method is called only every self.log_step steps
-            # Log Stuff
-            pass
-        else:
-            # Log Stuff
-            pass
+        if self.writer is None or "prediction" not in batch:
+            return
+
+        max_images = min(2, batch["prediction"].shape[0])
+        for index in range(max_images):
+            self.writer.add_image(
+                f"prediction_{index}",
+                batch["prediction"][index].detach().clamp(0, 1).cpu(),
+            )
+            if "lensed" in batch:
+                self.writer.add_image(
+                    f"target_{index}",
+                    batch["lensed"][index].detach().clamp(0, 1).cpu(),
+                )
+            self.writer.add_image(
+                f"lensless_{index}",
+                batch["lensless"][index].detach().clamp(0, 1).cpu(),
+            )

@@ -1,4 +1,5 @@
 import torch
+from torchvision.utils import save_image
 from tqdm.auto import tqdm
 
 from src.metrics.tracker import MetricTracker
@@ -122,33 +123,20 @@ class Inferencer(BaseTrainer):
         outputs = self.model(**batch)
         batch.update(outputs)
 
-        if metrics is not None:
+        if metrics is not None and "lensed" in batch:
             for met in self.metrics["inference"]:
                 metrics.update(met.name, met(**batch))
 
         # Some saving logic. This is an example
         # Use if you need to save predictions on disk
 
-        batch_size = batch["logits"].shape[0]
-        current_id = batch_idx * batch_size
+        batch_size = batch["prediction"].shape[0]
 
         for i in range(batch_size):
-            # clone because of
-            # https://github.com/pytorch/pytorch/issues/1995
-            logits = batch["logits"][i].clone()
-            label = batch["labels"][i].clone()
-            pred_label = logits.argmax(dim=-1)
-
-            output_id = current_id + i
-
-            output = {
-                "pred_label": pred_label,
-                "label": label,
-            }
-
             if self.save_path is not None:
-                # you can use safetensors or other lib here
-                torch.save(output, self.save_path / part / f"output_{output_id}.pth")
+                image_id = batch["image_id"][i]
+                prediction = batch["prediction"][i].detach().clamp(0, 1).cpu()
+                save_image(prediction, self.save_path / part / f"{image_id}.png")
 
         return batch
 

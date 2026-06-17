@@ -1,0 +1,5 @@
+_target_: src.model.ADMM
+mu1: 1e-4
+mu2: 1e-4
+mu3: 1e-4
+tau: 2e-4
