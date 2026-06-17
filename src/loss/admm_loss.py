@@ -1,32 +1,51 @@
 import torch
 from torch import nn
+from torch.nn import functional as F
 
 
-class ADMMLoss(nn.Module):
+class ReconstructionLoss(nn.Module):
     """
-    ADMM loss function from [paper](https://arxiv.org/pdf/1908.11502)
+    reconstruction loss from [paper](https://arxiv.org/pdf/1908.11502)
     """
 
-    def __init__(self):
+    def __init__(self, mse_weight=1.0, lpips_weight=0.0, lpips_net="vgg"):
         super().__init__()
-        self.loss = nn.CrossEntropyLoss()
+        self.mse_weight = mse_weight
+        self.lpips_weight = lpips_weight
+        self.lpips = None
 
-    def forward(self, logits: torch.Tensor, labels: torch.Tensor, **batch):
+        if lpips_weight > 0:
+            import lpips
+
+            self.lpips = lpips.LPIPS(net=lpips_net)
+
+    def forward(self, prediction: torch.Tensor, lensed: torch.Tensor, **batch):
         """
-        Loss function calculation logic.
-
-        Note that loss function must return dict. It must contain a value for
-        the 'loss' key. If several losses are used, accumulate them into one 'loss'.
-        Intermediate losses can be returned with other loss names.
-
-        For example, if you have loss = a_loss + 2 * b_loss. You can return dict
-        with 3 keys: 'loss', 'a_loss', 'b_loss'. You can log them individually inside
-        the writer. See config.writer.loss_names.
+        calculate loss
 
         Args:
-            logits (Tensor): model output predictions.
-            labels (Tensor): ground-truth labels.
+            prediction (Tensor): reconstructed images in [0, 1]
+            lensed (Tensor): ground-truth images in [0, 1]
+
         Returns:
-            losses (dict): dict containing calculated loss functions.
+            float: loss
         """
-        return {"loss": self.loss(logits, labels)}
+        prediction = prediction.clamp(0, 1)
+        lensed = lensed.clamp(0, 1)
+
+        mse_loss = F.mse_loss(prediction, lensed)
+        loss = self.mse_weight * mse_loss
+        result = {"loss": loss, "mse_loss": mse_loss}
+
+        if self.lpips is not None:
+            lpips_loss = self.lpips(
+                prediction * 2 - 1,
+                lensed * 2 - 1,
+            ).mean()
+            result["lpips_loss"] = lpips_loss
+            result["loss"] = result["loss"] + self.lpips_weight * lpips_loss
+
+        return result
+
+
+ADMMLoss = ReconstructionLoss

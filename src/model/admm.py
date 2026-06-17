@@ -1,5 +1,4 @@
 from torch import nn
-from torch.nn import Sequential
 
 
 class ADMM(nn.Module):
@@ -20,13 +19,13 @@ class ADMM(nn.Module):
         self.mu2 = mu2
         self.mu3 = mu3
         self.tau = tau
-        
 
-    def forward(self, b, psf, num_iters=100):
+    def forward(self, lensless, psf, num_iters=100, **batch):
+        b = lensless
         for _ in range(num_iters):
             pass
-        
-        return b
+
+        return {"prediction": b}
 
     def __str__(self):
         """
