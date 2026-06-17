@@ -2,9 +2,8 @@ import os
 import numpy as np
 from scipy.ndimage import rotate as rotate_func
 
-from lensless_helpers.utils import get_ctypes
+from src.lensless_helpers.utils import get_ctypes
 from slm_controller.hardware import SLMParam, slm_devices
-
 
 try:
     import torch
@@ -35,7 +34,14 @@ SUPPORTED_DEVICE = {
 
 
 def get_programmable_mask(
-    vals, sensor, slm_param, rotate=None, flipud=False, nbits=8, color_filter=None, deadspace=True
+    vals,
+    sensor,
+    slm_param,
+    rotate=None,
+    flipud=False,
+    nbits=8,
+    color_filter=None,
+    deadspace=True,
 ):
     """
     Get mask as a numpy or torch array. Return same type.
@@ -100,7 +106,9 @@ def get_programmable_mask(
 
         centers = get_centers(n_active_slm_pixels, pixel_pitch=pixel_pitch)
 
-        _height_pixel, _width_pixel = (slm_param[SLMParam_wp.CELL_SIZE] / d1).astype(int)
+        _height_pixel, _width_pixel = (slm_param[SLMParam_wp.CELL_SIZE] / d1).astype(
+            int
+        )
 
         for i, _center in enumerate(centers):
 
@@ -126,9 +134,13 @@ def get_programmable_mask(
 
         # use color filter to turn mask into RGB
         if use_torch:
-            active_mask_rgb = torch.zeros((n_color_filter,) + n_active_slm_pixels).to(vals)
+            active_mask_rgb = torch.zeros((n_color_filter,) + n_active_slm_pixels).to(
+                vals
+            )
         else:
-            active_mask_rgb = np.zeros((n_color_filter,) + n_active_slm_pixels, dtype=dtype)
+            active_mask_rgb = np.zeros(
+                (n_color_filter,) + n_active_slm_pixels, dtype=dtype
+            )
 
         # TODO avoid for loop
         for i in range(n_active_slm_pixels[0]):
@@ -142,9 +154,9 @@ def get_programmable_mask(
                 ] = (vals[i, j] * color_filter_idx)
 
         # size of active pixels in pixels
-        n_active_dim = np.around(slm_param[SLMParam_wp.PITCH] * n_active_slm_pixels / d1).astype(
-            int
-        )
+        n_active_dim = np.around(
+            slm_param[SLMParam_wp.PITCH] * n_active_slm_pixels / d1
+        ).astype(int)
         # n_active_dim = np.around(slm_param[SLMParam_wp.CELL_SIZE] * n_active_slm_pixels / d1).astype(int)
 
         # resize to n_active_dim
@@ -195,7 +207,10 @@ def adafruit_sub2full(
 
     # pad to full pattern
     pattern = np.zeros((3, 128, 160), dtype=np.uint8)
-    top_left = [center[0] - controllable_shape[1] // 2, center[1] - controllable_shape[2] // 2]
+    top_left = [
+        center[0] - controllable_shape[1] // 2,
+        center[1] - controllable_shape[2] // 2,
+    ]
     pattern[
         :,
         top_left[0] : top_left[0] + controllable_shape[1],

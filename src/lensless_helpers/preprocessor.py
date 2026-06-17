@@ -3,9 +3,8 @@ import warnings
 import numpy as np
 import cv2
 
-from lensless_helpers.psf import simulate_psf_from_mask
-from lensless_helpers.utils import resize
-
+from src.lensless_helpers.psf import simulate_psf_from_mask
+from src.lensless_helpers.utils import resize
 
 ALIGNMENT = {}
 ALIGNMENT["top_left"] = (80, 100)
@@ -26,6 +25,7 @@ def force_rgb(image):
         raise ValueError(f"Image should be 2D or 3D")
     return image
 
+
 def convert_image_to_float(image):
     # convert to float
     if image.dtype == np.uint8:
@@ -42,20 +42,16 @@ def get_cropped_lensed(lensed, lensless):
     )
     lensed = np.zeros(tuple(lensless.shape[:2]) + (3,), dtype=np.float32)
     lensed[
-        ALIGNMENT["top_left"][0] : ALIGNMENT["top_left"][0]
-        + ALIGNMENT["height"],
-        ALIGNMENT["top_left"][1] : ALIGNMENT["top_left"][1]
-        + ALIGNMENT["width"],
+        ALIGNMENT["top_left"][0] : ALIGNMENT["top_left"][0] + ALIGNMENT["height"],
+        ALIGNMENT["top_left"][1] : ALIGNMENT["top_left"][1] + ALIGNMENT["width"],
     ] = cropped_lensed
     return lensed
 
 
 def get_roi(image):
     return image[
-        ALIGNMENT["top_left"][0] : ALIGNMENT["top_left"][0]
-        + ALIGNMENT["height"],
-        ALIGNMENT["top_left"][1] : ALIGNMENT["top_left"][1]
-        + ALIGNMENT["width"],
+        ALIGNMENT["top_left"][0] : ALIGNMENT["top_left"][0] + ALIGNMENT["height"],
+        ALIGNMENT["top_left"][1] : ALIGNMENT["top_left"][1] + ALIGNMENT["width"],
     ]
 
 
@@ -71,4 +67,3 @@ def get_dataset_object(lensed, lensless, mask_vals):
 
     psf = simulate_psf_from_mask(mask_vals)
     return lensed, lensless, psf
-    

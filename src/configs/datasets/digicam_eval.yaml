@@ -1,0 +1,6 @@
+test:
+  _target_: src.datasets.DigiCamMirflickrDataset
+  split: "test"
+  use_preprocessor: true
+  cache_psf: true
+  psf_mode: "simulate"

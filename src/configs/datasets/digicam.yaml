@@ -1,0 +1,19 @@
+train:
+  _target_: src.datasets.DigiCamMirflickrDataset
+  split: "train"
+  use_preprocessor: true
+  cache_psf: true
+  psf_mode: "simulate"
+val:
+  _target_: src.datasets.DigiCamMirflickrDataset
+  split: "test"
+  limit: 128
+  use_preprocessor: true
+  cache_psf: true
+  psf_mode: "simulate"
+test:
+  _target_: src.datasets.DigiCamMirflickrDataset
+  split: "test"
+  use_preprocessor: true
+  cache_psf: true
+  psf_mode: "simulate"

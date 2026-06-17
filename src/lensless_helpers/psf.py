@@ -2,8 +2,8 @@ import torch
 import numpy as np
 from waveprop.devices import slm_dict
 
-from lensless_helpers.sensor import VirtualSensor
-from lensless_helpers.slm import get_programmable_mask, get_intensity_psf
+from src.lensless_helpers.sensor import VirtualSensor
+from src.lensless_helpers.slm import get_intensity_psf, get_programmable_mask
 
 
 def get_psf(
@@ -120,4 +120,3 @@ def simulate_psf_from_mask(
     #     psf = torch.flip(psf, dims=[-3, -2])
 
     return psf
-
