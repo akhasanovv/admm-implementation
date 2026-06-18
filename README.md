@@ -57,8 +57,7 @@ NameOfTheDirectoryWithData
 
 ## training
 
-default training uses DigiCam train split, evaluates on a small test subset,
-logs to comet, and saves checkpoints to `saved/<run_name>/`.
+default training uses DigiCam train split, evaluates on a small test subset, logs to comet, and saves checkpoints to `saved/<run_name>/`.
 
 ADMM has fixed parameters and does not need training.
 
@@ -106,21 +105,7 @@ predictions are saved to:
 data/saved/<inferencer.save_path>/<split>/
 ```
 
-Run ADMM-100 on one DigiCam test image:
-
-```bash
-python3 inference.py \
-  model=admm \
-  datasets=digicam_eval \
-  metrics=reconstruction_no_lpips \
-  datasets.test.limit=1 \
-  dataloader=lensless \
-  dataloader.batch_size=1 \
-  dataloader.num_workers=0 \
-  inferencer.save_path=admm_one
-```
-
-Run a trained modular checkpoint:
+run a trained modular checkpoint:
 
 ```bash
 python3 inference.py \
@@ -131,7 +116,7 @@ python3 inference.py \
   inferencer.save_path=pre4_leadmm5_post4_test
 ```
 
-Run inference on a custom folder:
+run inference on a custom dataset:
 
 ```bash
 python3 inference.py \
