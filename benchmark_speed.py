@@ -29,7 +29,7 @@ def main(config):
 
     checkpoint_path = config.inferencer.get("from_pretrained")
     if checkpoint_path is not None:
-        checkpoint = torch.load(checkpoint_path, map_location=device)
+        checkpoint = torch.load(checkpoint_path, map_location=device, weights_only=False)
         model.load_state_dict(checkpoint["state_dict"])
 
     warmup = config.get("benchmark", {}).get("warmup", 2)
