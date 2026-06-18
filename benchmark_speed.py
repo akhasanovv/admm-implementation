@@ -6,11 +6,9 @@ import torch
 from hydra.utils import instantiate
 
 from src.datasets.data_utils import get_dataloaders
-from src.utils.hydra_compat import patch_hydra_argparse
 from src.utils.init_utils import set_random_seed
 
 warnings.filterwarnings("ignore", category=UserWarning)
-patch_hydra_argparse()
 
 
 def sync(device):
