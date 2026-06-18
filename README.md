@@ -151,6 +151,7 @@ reconstructions:
 python3 calculate_metrics.py \
   --gt-dir /path/to/data_dir/lensed \
   --pred-dir data/saved/custom_admm/test \
+  --roi 80 100 200 266 \
   --lpips
 ```
 

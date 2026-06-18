@@ -14,6 +14,10 @@ def collate_fn(dataset_items: list[dict]):
         if all(value is not None for value in values):
             result_batch[key] = torch.stack(values)
 
+    values = [elem.get("roi") for elem in dataset_items]
+    if all(value is not None for value in values):
+        result_batch["roi"] = torch.stack(values)
+
     result_batch["image_id"] = [
         elem.get("image_id", str(index)) for index, elem in enumerate(dataset_items)
     ]

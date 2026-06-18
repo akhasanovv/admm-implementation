@@ -16,6 +16,13 @@ def load_image(path):
     return pil_to_tensor(image).float().unsqueeze(0) / 255.0
 
 
+def crop_roi(image, roi):
+    if roi is None:
+        return image
+    top, left, height, width = roi
+    return image[..., top : top + height, left : left + width]
+
+
 def image_index(path):
     return {
         file.stem: file
@@ -29,6 +36,7 @@ def main():
     parser.add_argument("--gt-dir", required=True)
     parser.add_argument("--pred-dir", required=True)
     parser.add_argument("--lpips", action="store_true")
+    parser.add_argument("--roi", nargs=4, type=int, default=None)
     parser.add_argument("--device", default="auto")
     args = parser.parse_args()
 
@@ -54,6 +62,7 @@ def main():
     for image_id in ids:
         gt = load_image(gt_files[image_id]).to(device)
         pred = load_image(pred_files[image_id]).to(device)
+        pred = crop_roi(pred, args.roi)
         if pred.shape[-2:] != gt.shape[-2:]:
             pred = F.interpolate(pred, size=gt.shape[-2:], mode="bilinear")
 

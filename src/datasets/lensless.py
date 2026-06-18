@@ -58,11 +58,12 @@ class PSFMixin:
         if self.use_preprocessor and lensed is not None and self.psf_mode == "simulate":
             from src.lensless_helpers.preprocessor import get_dataset_object
 
-            lensed, lensless, psf = get_dataset_object(lensed, lensless, mask_vals)
+            lensed, lensless, psf, roi = get_dataset_object(lensed, lensless, mask_vals)
             sample = {
                 "lensless": hwc_to_chw(lensless),
                 "lensed": hwc_to_chw(lensed),
                 "psf": hwc_to_chw(psf),
+                "roi": roi,
                 "image_id": image_id,
             }
         else:

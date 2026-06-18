@@ -1,5 +1,6 @@
 from src.metrics.tracker import MetricTracker
 from src.trainer.base_trainer import BaseTrainer
+from src.utils.roi import crop_prediction
 
 
 class Trainer(BaseTrainer):
@@ -76,10 +77,14 @@ class Trainer(BaseTrainer):
             return
 
         max_images = min(2, batch["prediction"].shape[0])
+        prediction = batch["prediction"]
+        if "lensed" in batch:
+            prediction = crop_prediction(prediction, batch["lensed"], batch.get("roi"))
+
         for index in range(max_images):
             self.writer.add_image(
                 f"prediction_{index}",
-                batch["prediction"][index].detach().clamp(0, 1).cpu(),
+                prediction[index].detach().clamp(0, 1).cpu(),
             )
             if "lensed" in batch:
                 self.writer.add_image(

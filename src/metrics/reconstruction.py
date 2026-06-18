@@ -5,6 +5,9 @@ from src.metrics.base_metric import BaseMetric
 
 import lpips
 
+from src.utils.roi import crop_prediction
+
+
 class ReconstructionMetric(BaseMetric):
     def __init__(self, metric, device="auto", clamp=True, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -13,14 +16,19 @@ class ReconstructionMetric(BaseMetric):
         self.metric = metric.to(device)
         self.clamp = clamp
 
-    def __call__(self, prediction: torch.Tensor, lensed: torch.Tensor, **kwargs):
+    def __call__(self, prediction: torch.Tensor, lensed: torch.Tensor, roi=None, **kwargs):
+        prediction = crop_prediction(prediction, lensed, roi)
         prediction = prediction.clamp(0, 1) if self.clamp else prediction
         lensed = lensed.clamp(0, 1) if self.clamp else lensed
-        return self.metric(prediction, lensed).item()
+        self.metric.reset()
+        value = self.metric(prediction, lensed).item()
+        self.metric.reset()
+        return value
 
 
 class MSEMetric(BaseMetric):
-    def __call__(self, prediction: torch.Tensor, lensed: torch.Tensor, **kwargs):
+    def __call__(self, prediction: torch.Tensor, lensed: torch.Tensor, roi=None, **kwargs):
+        prediction = crop_prediction(prediction, lensed, roi)
         return F.mse_loss(prediction.clamp(0, 1), lensed.clamp(0, 1)).item()
 
 
@@ -33,7 +41,8 @@ class LPIPSMetric(BaseMetric):
         self.metric = lpips.LPIPS(net=net).to(device)
 
     @torch.no_grad()
-    def __call__(self, prediction: torch.Tensor, lensed: torch.Tensor, **kwargs):
+    def __call__(self, prediction: torch.Tensor, lensed: torch.Tensor, roi=None, **kwargs):
+        prediction = crop_prediction(prediction, lensed, roi)
         prediction = prediction.clamp(0, 1) * 2 - 1
         lensed = lensed.clamp(0, 1) * 2 - 1
         return self.metric(prediction, lensed).mean().item()

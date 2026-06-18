@@ -36,16 +36,10 @@ def convert_image_to_float(image):
     return image
 
 
-def get_cropped_lensed(lensed, lensless):
-    cropped_lensed = resize(
+def get_cropped_lensed(lensed):
+    return resize(
         lensed, shape=CROPED_LENSED_SHAPE, interpolation=cv2.INTER_NEAREST
     )
-    lensed = np.zeros(tuple(lensless.shape[:2]) + (3,), dtype=np.float32)
-    lensed[
-        ALIGNMENT["top_left"][0] : ALIGNMENT["top_left"][0] + ALIGNMENT["height"],
-        ALIGNMENT["top_left"][1] : ALIGNMENT["top_left"][1] + ALIGNMENT["width"],
-    ] = cropped_lensed
-    return lensed
 
 
 def get_roi(image):
@@ -62,8 +56,16 @@ def get_dataset_object(lensed, lensless, mask_vals):
     # lensless image is upside-down
     lensless = torch.rot90(torch.from_numpy(lensless), dims=(-3, -2), k=2)
 
-    lensed = get_cropped_lensed(lensed, lensless)
+    lensed = get_cropped_lensed(lensed)
     lensed = torch.from_numpy(lensed)
 
     psf = simulate_psf_from_mask(mask_vals)
-    return lensed, lensless, psf
+    roi = torch.tensor(
+        [
+            ALIGNMENT["top_left"][0],
+            ALIGNMENT["top_left"][1],
+            ALIGNMENT["height"],
+            ALIGNMENT["width"],
+        ]
+    )
+    return lensed, lensless, psf, roi

@@ -2,6 +2,8 @@ import torch
 from torch import nn
 from torch.nn import functional as F
 
+from src.utils.roi import crop_prediction
+
 
 class ReconstructionLoss(nn.Module):
     """
@@ -19,7 +21,7 @@ class ReconstructionLoss(nn.Module):
 
             self.lpips = lpips.LPIPS(net=lpips_net)
 
-    def forward(self, prediction: torch.Tensor, lensed: torch.Tensor, **batch):
+    def forward(self, prediction: torch.Tensor, lensed: torch.Tensor, roi=None, **batch):
         """
         calculate loss
 
@@ -30,6 +32,7 @@ class ReconstructionLoss(nn.Module):
         Returns:
             float: loss
         """
+        prediction = crop_prediction(prediction, lensed, roi)
         lensed = lensed.clamp(0, 1)
 
         mse_loss = F.mse_loss(prediction, lensed)
