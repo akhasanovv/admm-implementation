@@ -56,7 +56,7 @@ class ADMM(nn.Module):
             a3 = a3 + mu3 * (x - w)
 
         pred = self._crop(x, lensless.shape[-2:])
-        return {"prediction": pred.clamp(0, 1)}
+        return {"prediction": pred}
 
     def _padded_shape(self, lensless, psf):
         h, w = lensless.shape[-2:]

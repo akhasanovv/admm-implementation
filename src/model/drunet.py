@@ -47,7 +47,7 @@ class DRUNet(nn.Module):
         y = self.dec3(self._match(self.up3(y), y3) + y3)
         y = self.dec2(self._match(self.up2(y), y2) + y2)
         y = self.dec1(self._match(self.up1(y), y1) + y1)
-        return (x + self.tail(y)).clamp(0, 1)
+        return x + self.tail(y)
 
     def _blocks(self, channels, count):
         return nn.Sequential(*[ResBlock(channels) for _ in range(count)])

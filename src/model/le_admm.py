@@ -71,4 +71,4 @@ class LeADMM(ADMM):
             a3 = a3 + mu3 * (x - w)
 
         pred = self._crop(x, lensless.shape[-2:])
-        return {"prediction": pred.clamp(0, 1)}
+        return {"prediction": pred}

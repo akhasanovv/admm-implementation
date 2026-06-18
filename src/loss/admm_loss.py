@@ -30,7 +30,6 @@ class ReconstructionLoss(nn.Module):
         Returns:
             float: loss
         """
-        prediction = prediction.clamp(0, 1)
         lensed = lensed.clamp(0, 1)
 
         mse_loss = F.mse_loss(prediction, lensed)
@@ -39,7 +38,7 @@ class ReconstructionLoss(nn.Module):
 
         if self.lpips is not None:
             lpips_loss = self.lpips(
-                prediction * 2 - 1,
+                prediction.clamp(0, 1) * 2 - 1,
                 lensed * 2 - 1,
             ).mean()
             result["lpips_loss"] = lpips_loss

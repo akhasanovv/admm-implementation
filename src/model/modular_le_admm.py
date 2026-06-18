@@ -31,6 +31,6 @@ class ModularLeADMM(nn.Module):
             pred = self.postprocess(pred)
 
         return {
-            "prediction": pred.clamp(0, 1),
+            "prediction": pred,
             "admm_prediction": admm_pred,
         }
