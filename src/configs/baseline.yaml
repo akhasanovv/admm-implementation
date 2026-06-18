@@ -1,9 +1,9 @@
 defaults:
-  - model: reconstruction_baseline
+  - model: le_admm
   - writer: wandb
   - metrics: reconstruction
-  - datasets: example
-  - dataloader: example
+  - datasets: digicam
+  - dataloader: lensless
   - transforms: none
   - _self_
 optimizer:
@@ -16,7 +16,7 @@ lr_scheduler:
 loss_function:
   _target_: src.loss.ReconstructionLoss
   mse_weight: 1.0
-  lpips_weight: 0.0
+  lpips_weight: 1.0
 trainer:
   log_step: 50
   n_epochs: 100

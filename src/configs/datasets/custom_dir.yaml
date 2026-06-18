@@ -1,0 +1,18 @@
+train:
+  _target_: src.datasets.CustomDirDataset
+  data_dir: ???
+  use_preprocessor: false
+  cache_psf: true
+  psf_mode: "mask"
+val:
+  _target_: src.datasets.CustomDirDataset
+  data_dir: ???
+  use_preprocessor: false
+  cache_psf: true
+  psf_mode: "mask"
+test:
+  _target_: src.datasets.CustomDirDataset
+  data_dir: ???
+  use_preprocessor: false
+  cache_psf: true
+  psf_mode: "mask"
