@@ -39,15 +39,16 @@ class DRUNet(nn.Module):
         self.tail = nn.Conv2d(c1, out_channels, 3, padding=1)
 
     def forward(self, x):
-        y1 = self.enc1(F.relu(self.head(x)))
+        y1 = self.enc1(self.head(x))
         y2 = self.enc2(F.relu(self.down1(y1)))
         y3 = self.enc3(F.relu(self.down2(y2)))
-        y = self.mid(F.relu(self.down3(y3)))
+        y4 = F.relu(self.down3(y3))
+        y = self.mid(y4)
 
-        y = self.dec3(self._match(self.up3(y), y3) + y3)
-        y = self.dec2(self._match(self.up2(y), y2) + y2)
-        y = self.dec1(self._match(self.up1(y), y1) + y1)
-        return x + self.tail(y)
+        y = self.dec3(self._match(self.up3(y + y4), y3))
+        y = self.dec2(self._match(self.up2(y + y3), y2))
+        y = self.dec1(self._match(self.up1(y + y2), y1))
+        return x + self.tail(y + y1)
 
     def _blocks(self, channels, count):
         return nn.Sequential(*[ResBlock(channels) for _ in range(count)])
