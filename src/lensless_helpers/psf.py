@@ -59,8 +59,7 @@ def get_psf(
     # flip mask
     psf_in = torch.flip(psf_in, dims=[-3, -2])
 
-    # normalize
-    psf_in = psf_in / psf_in.norm()
+    psf_in = psf_in / psf_in.sum(dim=(-3, -2), keepdim=True).clamp_min(1e-12)
 
     return psf_in
 
