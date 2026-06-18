@@ -5,11 +5,11 @@ mu2: 1e-4
 mu3: 1e-4
 tau: 2e-4
 pad_factor: 2
-preprocessor:
+preprocess:
   _target_: src.model.DRUNet
   channels: [32, 64, 116, 128]
   blocks_per_scale: 4
-postprocessor:
+postprocess:
   _target_: src.model.DRUNet
   channels: [32, 64, 116, 128]
   blocks_per_scale: 4
