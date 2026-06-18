@@ -1,0 +1,11 @@
+_target_: src.model.ModularLeADMM
+leadmm_iters: 5
+mu1: 1e-4
+mu2: 1e-4
+mu3: 1e-4
+tau: 2e-4
+pad_factor: 2
+preprocessor:
+  _target_: src.model.DRUNet
+postprocessor:
+  _target_: src.model.DRUNet

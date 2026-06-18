@@ -1,0 +1,5 @@
+_target_: src.model.ModularLeADMM
+leadmm_iters: 5
+preprocessor: null
+postprocessor:
+  _target_: src.model.DRUNet
