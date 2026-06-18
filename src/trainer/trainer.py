@@ -78,14 +78,24 @@ class Trainer(BaseTrainer):
 
         max_images = min(2, batch["prediction"].shape[0])
         prediction = batch["prediction"]
+        admm_prediction = batch.get("admm_prediction")
         if "lensed" in batch:
             prediction = crop_prediction(prediction, batch["lensed"], batch.get("roi"))
+            if admm_prediction is not None:
+                admm_prediction = crop_prediction(
+                    admm_prediction, batch["lensed"], batch.get("roi")
+                )
 
         for index in range(max_images):
             self.writer.add_image(
                 f"prediction_{index}",
                 prediction[index].detach().clamp(0, 1).cpu(),
             )
+            if admm_prediction is not None:
+                self.writer.add_image(
+                    f"admm_prediction_{index}",
+                    admm_prediction[index].detach().clamp(0, 1).cpu(),
+                )
             if "lensed" in batch:
                 self.writer.add_image(
                     f"target_{index}",

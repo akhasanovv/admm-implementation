@@ -4,6 +4,7 @@ from tqdm.auto import tqdm
 
 from src.metrics.tracker import MetricTracker
 from src.trainer.base_trainer import BaseTrainer
+from src.utils.roi import crop_prediction
 
 
 class Inferencer(BaseTrainer):
@@ -135,7 +136,12 @@ class Inferencer(BaseTrainer):
         for i in range(batch_size):
             if self.save_path is not None:
                 image_id = batch["image_id"][i]
-                prediction = batch["prediction"][i].detach().clamp(0, 1).cpu()
+                prediction = batch["prediction"]
+                if "lensed" in batch:
+                    prediction = crop_prediction(
+                        prediction, batch["lensed"], batch.get("roi")
+                    )
+                prediction = prediction[i].detach().clamp(0, 1).cpu()
                 save_image(prediction, self.save_path / part / f"{image_id}.png")
 
         return batch

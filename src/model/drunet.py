@@ -39,6 +39,9 @@ class DRUNet(nn.Module):
         self.tail = nn.Conv2d(c1, out_channels, 3, padding=1)
 
     def forward(self, x):
+        shape = x.shape[-2:]
+        x = self._pad(x)
+
         y1 = self.enc1(self.head(x))
         y2 = self.enc2(F.relu(self.down1(y1)))
         y3 = self.enc3(F.relu(self.down2(y2)))
@@ -48,7 +51,7 @@ class DRUNet(nn.Module):
         y = self.dec3(self._match(self.up3(y + y4), y3))
         y = self.dec2(self._match(self.up2(y + y3), y2))
         y = self.dec1(self._match(self.up1(y + y2), y1))
-        return x + self.tail(y + y1)
+        return self._crop(x + self.tail(y + y1), shape)
 
     def _blocks(self, channels, count):
         return nn.Sequential(*[ResBlock(channels) for _ in range(count)])
@@ -57,3 +60,15 @@ class DRUNet(nn.Module):
         if x.shape[-2:] == target.shape[-2:]:
             return x
         return F.interpolate(x, size=target.shape[-2:], mode="bilinear")
+
+    def _pad(self, x):
+        h, w = x.shape[-2:]
+        pad_h = (8 - h % 8) % 8
+        pad_w = (8 - w % 8) % 8
+        if pad_h == 0 and pad_w == 0:
+            return x
+        return F.pad(x, (0, pad_w, 0, pad_h), mode="reflect")
+
+    def _crop(self, x, shape):
+        h, w = shape
+        return x[..., :h, :w]
