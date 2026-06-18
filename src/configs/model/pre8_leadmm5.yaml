@@ -2,4 +2,6 @@ _target_: src.model.ModularLeADMM
 leadmm_iters: 5
 preprocessor:
   _target_: src.model.DRUNet
+  channels: [32, 64, 128, 256]
+  blocks_per_scale: 4
 postprocessor: null

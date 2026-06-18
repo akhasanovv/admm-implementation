@@ -7,5 +7,9 @@ tau: 2e-4
 pad_factor: 2
 preprocessor:
   _target_: src.model.DRUNet
+  channels: [32, 64, 116, 128]
+  blocks_per_scale: 4
 postprocessor:
   _target_: src.model.DRUNet
+  channels: [32, 64, 116, 128]
+  blocks_per_scale: 4

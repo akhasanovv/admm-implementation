@@ -1,91 +1,58 @@
-import torch
 from torch import nn
 from torch.nn import functional as F
 
 
-class ConvReLU(nn.Module):
-    def __init__(self, in_channels, out_channels):
+class ResBlock(nn.Module):
+    def __init__(self, channels):
         super().__init__()
-        
         self.net = nn.Sequential(
-            nn.Conv2d(in_channels, out_channels, 3, padding=1),
-            nn.BatchNorm2d(out_channels),
+            nn.Conv2d(channels, channels, 3, padding=1),
             nn.ReLU(inplace=True),
+            nn.Conv2d(channels, channels, 3, padding=1),
         )
 
     def forward(self, x):
-        return self.net(x)
-
-
-class EncBlock(nn.Module):
-    def __init__(self, in_channels, out_channels):
-        super().__init__()
-        
-        self.net = nn.Sequential(
-            ConvReLU(in_channels, out_channels),
-            ConvReLU(out_channels, out_channels),
-        )
-
-    def forward(self, x):
-        return self.net(x)
-
-
-class DecBlock(nn.Module):
-    def __init__(self, in_channels, out_channels):
-        super().__init__()
-        
-        self.net = nn.Sequential(
-            ConvReLU(in_channels, out_channels),
-            ConvReLU(out_channels, out_channels),
-            ConvReLU(out_channels, out_channels),
-        )
-
-    def forward(self, x):
-        return self.net(x)
+        return F.relu(x + self.net(x))
 
 
 class DRUNet(nn.Module):
-    """
-    UNet as described in [paper](https://arxiv.org/pdf/1908.11502)
-    """
-    def __init__(self, in_channels=3, out_channels=3):
+    def __init__(self, channels, in_channels=3, out_channels=3, blocks_per_scale=4):
         super().__init__()
-        
-        self.enc1 = EncBlock(in_channels, 24)
-        self.pool1 = nn.MaxPool2d(2, 2)
-        self.enc2 = EncBlock(24, 64)
-        self.pool2 = nn.MaxPool2d(2, 2)
-        self.enc3 = EncBlock(64, 128)
-        self.pool3 = nn.MaxPool2d(2, 2)
-        self.enc4 = EncBlock(128, 256)
-        self.pool4 = nn.MaxPool2d(2, 2)
-        self.enc5 = EncBlock(256, 512)
-        self.pool5 = nn.MaxPool2d(2, 2)
-        self.conv1 = ConvReLU(512, 512)
-        
-        self.dec5 = DecBlock(1024, 256)
-        self.dec4 = DecBlock(512, 128)
-        self.dec3 = DecBlock(256, 64)
-        self.dec2 = DecBlock(128, 24)
-        self.dec1 = DecBlock(48, 24)
-        self.conv2 = nn.Conv2d(24, out_channels, 1)
+        c1, c2, c3, c4 = channels
 
-    def _concat(self, x, skip):
-        x = F.interpolate(x, size=skip.shape[-2:], mode="bilinear")
-        return torch.cat((x, skip), dim=1)
+        self.head = nn.Conv2d(in_channels, c1, 3, padding=1)
+        self.enc1 = self._blocks(c1, blocks_per_scale)
+        self.down1 = nn.Conv2d(c1, c2, 2, stride=2)
+        self.enc2 = self._blocks(c2, blocks_per_scale)
+        self.down2 = nn.Conv2d(c2, c3, 2, stride=2)
+        self.enc3 = self._blocks(c3, blocks_per_scale)
+        self.down3 = nn.Conv2d(c3, c4, 2, stride=2)
+
+        self.mid = self._blocks(c4, blocks_per_scale)
+
+        self.up3 = nn.ConvTranspose2d(c4, c3, 2, stride=2)
+        self.dec3 = self._blocks(c3, blocks_per_scale)
+        self.up2 = nn.ConvTranspose2d(c3, c2, 2, stride=2)
+        self.dec2 = self._blocks(c2, blocks_per_scale)
+        self.up1 = nn.ConvTranspose2d(c2, c1, 2, stride=2)
+        self.dec1 = self._blocks(c1, blocks_per_scale)
+        self.tail = nn.Conv2d(c1, out_channels, 3, padding=1)
 
     def forward(self, x):
-        enc1 = self.enc1(x)
-        enc2 = self.enc2(self.pool1(enc1))
-        enc3 = self.enc3(self.pool2(enc2))
-        enc4 = self.enc4(self.pool3(enc3))
-        enc5 = self.enc5(self.pool4(enc4))
+        y1 = self.enc1(F.relu(self.head(x)))
+        y2 = self.enc2(F.relu(self.down1(y1)))
+        y3 = self.enc3(F.relu(self.down2(y2)))
+        y = self.mid(F.relu(self.down3(y3)))
 
-        y = self.conv1(self.pool5(enc5))
-        y = self.dec5(self._concat(y, enc5))
-        y = self.dec4(self._concat(y, enc4))
-        y = self.dec3(self._concat(y, enc3))
-        y = self.dec2(self._concat(y, enc2))
-        y = self.dec1(self._concat(y, enc1))
-        
-        return self.conv2(y)
+        y = self.dec3(self._match(self.up3(y), y3) + y3)
+        y = self.dec2(self._match(self.up2(y), y2) + y2)
+        y = self.dec1(self._match(self.up1(y), y1) + y1)
+        return (x + self.tail(y)).clamp(0, 1)
+
+    def _blocks(self, channels, count):
+        return nn.Sequential(*[ResBlock(channels) for _ in range(count)])
+
+    def _match(self, x, target):
+        if x.shape[-2:] == target.shape[-2:]:
+            return x
+        return F.interpolate(x, size=target.shape[-2:], mode="bilinear")
