@@ -3,7 +3,6 @@ import numpy as np
 from scipy.ndimage import rotate as rotate_func
 
 from src.lensless_helpers.utils import get_ctypes
-from slm_controller.hardware import SLMParam, slm_devices
 
 try:
     import torch
