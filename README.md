@@ -8,7 +8,7 @@ mask-based lensless imaging](https://arxiv.org/pdf/1908.11502):
 - 8M modular Le-ADMM-5 variants: pre+post, pre-only, post-only
 
 the code uses the DigiCam-Mirflickr-MultiMask-10K dataset and supports
-inference on a custom folder dataset. trained models can be found on [huggingface](akhasanovv/admm-lensless-checkpoints).
+inference on a custom folder dataset. trained models can be found on [huggingface](https://huggingface.co/akhasanovv/admm-lensless-checkpoints).
 
 ## installation
 
@@ -136,7 +136,6 @@ reconstructions:
 python3 calculate_metrics.py \
   --gt-dir /path/to/data_dir/lensed \
   --pred-dir data/saved/custom_admm/test \
-  --roi 80 100 200 266 \
   --lpips
 ```
 
@@ -174,7 +173,7 @@ python3 inference.py \
 
 ## demo notebook
 
-link here
+see [demo.ipynb](demo.ipynb). it clones the repository in colab, installs dependencies, downloads checkpoints, downloads a custom dataset zip from google drive, runs inference, visualizes samples, and prints metrics when `lensed/` exists.
 
 ## credits
 
