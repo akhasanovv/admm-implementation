@@ -1,0 +1,17 @@
+defaults:
+  - baseline
+  - override /model: pre4_leadmm5_post4
+  - override /writer: cometml
+  - _self_
+
+optimizer:
+  lr: 1e-4
+
+lr_scheduler:
+  gamma: 0.98
+
+trainer:
+  from_pretrained: null
+
+writer:
+  run_name: pre4_leadmm5_post4_finetune
