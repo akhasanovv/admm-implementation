@@ -9,10 +9,15 @@ IMAGE_EXTENSIONS = {".png", ".jpg", ".jpeg", ".bmp", ".tif", ".tiff"}
 
 
 def image_to_tensor(image):
-    if isinstance(image, (str, Path)):
-        image = Image.open(image)
+    image = load_image(image)
     array = np.asarray(image.convert("RGB"), dtype=np.float32) / 255.0
     return torch.from_numpy(array).permute(2, 0, 1)
+
+
+def load_image(image):
+    if isinstance(image, (str, Path)):
+        return Image.open(image)
+    return image
 
 
 def hwc_to_chw(tensor):
@@ -58,6 +63,8 @@ class PSFMixin:
         if self.use_preprocessor and lensed is not None and self.psf_mode == "simulate":
             from src.lensless_helpers.preprocessor import get_dataset_object
 
+            lensless = load_image(lensless)
+            lensed = load_image(lensed)
             lensed, lensless, psf, roi = get_dataset_object(lensed, lensless, mask_vals)
             sample = {
                 "lensless": hwc_to_chw(lensless),
