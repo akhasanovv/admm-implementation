@@ -175,6 +175,8 @@ python3 inference.py \
 
 see [demo.ipynb](demo.ipynb). it clones the repository in colab, installs dependencies, downloads checkpoints, downloads a custom dataset zip from google drive, runs inference, visualizes samples, and prints metrics when `lensed/` exists.
 
+see how it works in [google colab](https://colab.research.google.com/drive/1KpyjNWK4uNJpU4hAcMAwjO2NMDDNsI9D?usp=sharing).
+
 ## credits
 
 based on [Petr Grinberg's template](https://github.com/Blinorot/pytorch_project_template).
