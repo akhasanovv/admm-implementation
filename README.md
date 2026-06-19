@@ -8,7 +8,7 @@ mask-based lensless imaging](https://arxiv.org/pdf/1908.11502):
 - 8M modular Le-ADMM-5 variants: pre+post, pre-only, post-only
 
 the code uses the DigiCam-Mirflickr-MultiMask-10K dataset and supports
-inference on a custom folder dataset.
+inference on a custom folder dataset. trained models can be found on [huggingface](akhasanovv/admm-lensless-checkpoints).
 
 ## installation
 
